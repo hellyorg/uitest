@@ -1,0 +1,48 @@
+# This is just an example workflow for continuous integration.
+# You should customize it to meet your own requirements.
+name: 'testwin'
+on:
+  # Manually trigger this workflow, and you should pick the right branch.
+  workflow_dispatch:
+  
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    env:
+      M365_USERNAME1: test04@xxbdw.onmicrosoft.com
+    outputs:
+      cases: ${{steps.job1.outputs.cases}}
+      tv2: ${{steps.job1.outputs.tv2}}
+    steps:
+
+      - name: Checkout dev branch
+        uses: actions/checkout@v2
+        with:
+          ref: main
+
+      - name: Install npm packages
+        run: |
+          npm install
+
+      - name: Set azure account (ubuntu)
+        run: |
+          username='${{ secrets.M365_USERNAME }}'
+          echo "M365_USERNAME=$username" >> $GITHUB_ENV
+
+      - name: Use the value
+        id: step_two
+        run: |
+          echo "${{ env.M365_USERNAME }}"
+
+
+      - name: echo env
+        run: |
+          npx ts-node src/a.ts
+
+      - name: upload release info to artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: release
+          path: |
+            *.vsix
+
